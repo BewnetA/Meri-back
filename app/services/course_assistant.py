@@ -96,16 +96,34 @@ class CourseAssistantService:
         context_list = []
         citations = []
 
-        # If page_context contains live lesson text from frontend, include it with priority
+        # If page_context contains live lesson/course text from frontend, prioritize as primary Source [1]
         if page_context and isinstance(page_context, dict):
-            content_desc = page_context.get("content", "")
+            raw_content = page_context.get("content", "")
+            content_desc = ""
+            if isinstance(raw_content, dict):
+                content_desc = raw_content.get("text", "") or str(raw_content)
+            elif isinstance(raw_content, str):
+                content_desc = raw_content
+
             if content_desc:
-                context_list.append(
+                page_title = page_context.get("title", "Current Webpage Context")
+                context_list.insert(
+                    0,
                     {
-                        "title": page_context.get("title", "Active Lesson Page"),
+                        "title": page_title,
                         "content": str(content_desc),
                         "page_number": None,
-                    }
+                    },
+                )
+                citations.insert(
+                    0,
+                    CitationItem(
+                        document_title=page_title,
+                        page_number=None,
+                        section_or_lesson="Active Webpage",
+                        source_reference="Current Active Page",
+                        snippet=content_desc[:250] + ("..." if len(content_desc) > 250 else ""),
+                    ),
                 )
 
         for chunk, doc_title, score in relevant_items:
@@ -128,9 +146,12 @@ class CourseAssistantService:
             )
 
         system_instruction = (
-            "Focus on explaining concepts clearly, resolving doubts, and citing the provided lesson materials. "
-            "If asked to summarize, provide a concise, structured bulleted summary. "
-            "Explain difficult terminology in plain terms suitable for students."
+            "You are BridgeMate, an AI learning assistant helping a student on their educational platform. "
+            "The student's CURRENT webpage content, course, and active week/module are provided in the grounded context. "
+            "You MUST answer questions using the active page and week content provided. "
+            "When the student asks what is on this page, what week they are on, what deliverables or assignments are due, or about any topic, "
+            "give a direct, helpful, and specific answer referencing the active section and deliverables. "
+            "If asked to summarize, provide a clear, bulleted summary of the active week's content."
         )
 
         response_text, provider = await ai_orchestrator.generate_response(
