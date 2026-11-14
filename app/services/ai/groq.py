@@ -57,25 +57,36 @@ class GroqProvider(BaseAIProvider):
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
         }
-        payload = {
-            "model": self.model,
-            "messages": [
-                {"role": "system", "content": system_msg},
-                {"role": "user", "content": user_msg},
-            ],
-            "temperature": 0.2,
-            "max_tokens": 1024,
-        }
+        candidate_models = [self.model, "qwen/qwen3.8-27b", "openai/gpt-oss-120b", "llama-3.1-8b-instant", "llama-3.3-70b-versatile"]
+        # Deduplicate while preserving order
+        candidate_models = list(dict.fromkeys(filter(None, candidate_models)))
 
         async with httpx.AsyncClient(timeout=30.0) as client:
-            resp = await client.post(self.base_url, headers=headers, json=payload)
-            if resp.status_code != 200:
-                logger.error(f"Groq API error: {resp.status_code} - {resp.text}")
-                raise RuntimeError(f"Groq API returned status {resp.status_code}")
+            last_err = None
+            for model_name in candidate_models:
+                payload = {
+                    "model": model_name,
+                    "messages": [
+                        {"role": "system", "content": system_msg},
+                        {"role": "user", "content": user_msg},
+                    ],
+                    "temperature": 0.2,
+                    "max_tokens": 1024,
+                }
+                resp = await client.post(self.base_url, headers=headers, json=payload)
+                if resp.status_code == 200:
+                    self.model = model_name  # Cache working model for future calls
+                    data = resp.json()
+                    choices = data.get("choices", [])
+                    if choices:
+                        return choices[0].get("message", {}).get("content", "").strip()
+                elif resp.status_code == 404 or "model_not_found" in resp.text:
+                    logger.warning(f"Groq model '{model_name}' not accessible, trying fallback model...")
+                    last_err = resp.text
+                    continue
+                else:
+                    logger.error(f"Groq API error on model {model_name}: {resp.status_code} - {resp.text}")
+                    last_err = resp.text
+                    break
 
-            data = resp.json()
-            choices = data.get("choices", [])
-            if choices:
-                return choices[0].get("message", {}).get("content", "").strip()
-
-            raise RuntimeError("Groq returned empty choices")
+            raise RuntimeError(f"Groq API error across candidate models: {last_err}")
