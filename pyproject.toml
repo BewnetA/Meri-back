@@ -1,0 +1,27 @@
+[project]
+name = "bridgemate-backend"
+version = "1.0.0"
+description = "BridgeMate Context-Aware AI Backend"
+readme = "README.md"
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+    "E712",  # comparison to True/False in SQLAlchemy filters
+    "B008",  # function call in argument default (FastAPI Depends)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"alembic/*" = ["E402", "F401", "UP035", "UP007"]
+"scripts/*" = ["E402"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "strict"
+asyncio_default_fixture_loop_scope = "function"
