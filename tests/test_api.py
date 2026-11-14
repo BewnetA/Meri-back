@@ -279,3 +279,88 @@ async def test_telegram_phone_verification_flow():
         platforms = plat_resp.json()
         assert len(platforms) > 0
         assert platforms[0]["platform_name"] == "Savanna"
+
+
+@pytest.mark.asyncio
+async def test_platform_admin_and_management_endpoints():
+    """Verify listing platforms, domain management, status toggling, and key rotation."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        # 1. List platforms
+        list_resp = await ac.get("/api/v1/platforms")
+        assert list_resp.status_code == 200
+        platforms = list_resp.json()
+        assert len(platforms) > 0
+        platform_id = platforms[0]["id"]
+
+        # 2. Add domain
+        add_dom = await ac.post(f"/api/v1/platforms/{platform_id}/domains", json={"domain": "learn.test.com"})
+        assert add_dom.status_code == 200
+        assert add_dom.json()["status"] == "ok"
+
+        # 3. Rotate integration keys
+        rotate_resp = await ac.post(f"/api/v1/platforms/{platform_id}/rotate-keys")
+        assert rotate_resp.status_code == 200
+        rot_data = rotate_resp.json()
+        assert "secret_key" in rot_data
+        assert rot_data["secret_key"].startswith("sk_live_")
+
+        # 4. Toggle platform status
+        status_resp = await ac.patch(f"/api/v1/platforms/{platform_id}/status", json={"enabled": True})
+        assert status_resp.status_code == 200
+        assert status_resp.json()["enabled"] is True
+
+
+@pytest.mark.asyncio
+async def test_faqs_and_learner_listing():
+    """Verify FAQ creation, listing, deletion, and admin learner listing."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        # 1. Create FAQ
+        faq_payload = {
+            "category": "accessibility",
+            "question": "Does BridgeMate support screen readers?",
+            "answer": "Yes, BridgeMate provides AAA contrast, keyboard shortcuts, and live screen reader regions.",
+            "language": "en",
+            "keywords": ["screen reader", "accessibility", "a11y"],
+            "is_approved": True,
+        }
+        create_resp = await ac.post("/api/v1/knowledge/faqs", json=faq_payload)
+        assert create_resp.status_code == 201
+        faq_data = create_resp.json()
+        faq_id = faq_data["id"]
+
+        # 2. List FAQs
+        faq_list = await ac.get("/api/v1/knowledge/faqs?category=accessibility")
+        assert faq_list.status_code == 200
+        assert any(f["id"] == faq_id for f in faq_list.json())
+
+        # 3. List learners
+        learners_resp = await ac.get("/api/v1/auth/learners")
+        assert learners_resp.status_code == 200
+        learners = learners_resp.json()
+        assert len(learners) > 0
+        assert any(l["phone_number"] == "+251911223344" for l in learners)
+
+        # 4. Cleanup FAQ
+        del_resp = await ac.delete(f"/api/v1/knowledge/faqs/{faq_id}")
+        assert del_resp.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_admin_hub_and_static_assets():
+    """Verify admin hub HTML and static meri.js bundle are accessible."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        admin_resp = await ac.get("/admin/")
+        assert admin_resp.status_code == 200
+        assert "BridgeMate Platform Hub" in admin_resp.text
+
+        dashboard_resp = await ac.get("/dashboard/")
+        assert dashboard_resp.status_code == 200
+
+        static_bundle = await ac.get("/static/meri.js")
+        assert static_bundle.status_code == 200
+        assert len(static_bundle.content) > 1000
+
+

@@ -51,3 +51,28 @@ class KnowledgeChunkResult(BaseModel):
     page_number: int | None = None
     section_title: str | None = None
     score: float
+
+
+class FAQCreate(BaseModel):
+    platform_id: str | None = None
+    category: str = Field(default="general", examples=["course", "job", "general", "accessibility"])
+    question: str = Field(..., examples=["How do I submit an assignment?"])
+    answer: str = Field(..., examples=["Click on the assignment title, attach your solution, and click Submit."])
+    language: str = Field(default="en")
+    keywords: list[str] = Field(default_factory=list)
+    is_approved: bool = True
+
+
+class FAQResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    platform_id: str | None = None
+    category: str
+    question: str
+    answer: str
+    language: str
+    keywords: list[str] = Field(default_factory=list)
+    is_approved: bool
+    created_at: datetime
+

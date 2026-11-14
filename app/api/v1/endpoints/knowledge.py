@@ -4,11 +4,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.dependencies import get_session_context
+from app.models.common import FAQEntry
 from app.models.course import Course, Document, DocumentChunk
 from app.schemas.course import (
     CourseCreate,
     CourseResponse,
     DocumentResponse,
+    FAQCreate,
+    FAQResponse,
     KnowledgeChunkResult,
     KnowledgeSearchRequest,
 )
@@ -210,3 +213,67 @@ async def search_knowledge_base(
         )
         for chunk, doc_title, score in results
     ]
+
+
+@router.get("/faqs", response_model=list[FAQResponse])
+@router.get("/knowledge/faqs", response_model=list[FAQResponse])
+async def list_faqs(
+    category: str | None = None,
+    language: str | None = None,
+    session: dict = Depends(get_session_context),
+    db: AsyncSession = Depends(get_db),
+):
+    """Retrieves approved FAQs for offline and institutional grounding."""
+    stmt = select(FAQEntry)
+    platform_id = session.get("platform_id")
+    if platform_id:
+        stmt = stmt.where((FAQEntry.platform_id == platform_id) | (FAQEntry.platform_id == None))
+    if category:
+        stmt = stmt.where(FAQEntry.category == category)
+    if language:
+        stmt = stmt.where(FAQEntry.language == language)
+    stmt = stmt.order_by(FAQEntry.created_at.desc())
+    res = await db.execute(stmt)
+    return res.scalars().all()
+
+
+@router.post("/faqs", response_model=FAQResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/knowledge/faqs", response_model=FAQResponse, status_code=status.HTTP_201_CREATED)
+async def create_faq(
+    payload: FAQCreate,
+    session: dict = Depends(get_session_context),
+    db: AsyncSession = Depends(get_db),
+):
+    """Creates a new institutional FAQ entry."""
+    platform_id = payload.platform_id or session.get("platform_id")
+    faq = FAQEntry(
+        platform_id=platform_id,
+        category=payload.category,
+        question=payload.question,
+        answer=payload.answer,
+        language=payload.language,
+        keywords=payload.keywords,
+        is_approved=payload.is_approved,
+    )
+    db.add(faq)
+    await db.commit()
+    await db.refresh(faq)
+    return faq
+
+
+@router.delete("/faqs/{id}")
+@router.delete("/knowledge/faqs/{id}")
+async def delete_faq(
+    id: str,
+    db: AsyncSession = Depends(get_db),
+):
+    """Deletes an FAQ entry."""
+    stmt = select(FAQEntry).where(FAQEntry.id == id)
+    res = await db.execute(stmt)
+    faq = res.scalar_one_or_none()
+    if not faq:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="FAQ not found")
+    await db.delete(faq)
+    await db.commit()
+    return {"status": "ok", "message": "FAQ deleted"}
+

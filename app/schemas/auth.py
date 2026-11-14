@@ -43,6 +43,19 @@ class UserResponse(BaseModel):
     is_active: bool
 
 
+class LearnerAdminResponse(BaseModel):
+    id: str
+    full_name: str
+    email: str | None = None
+    role: str
+    is_active: bool
+    phone_number: str | None = None
+    phone_verified: bool = False
+    telegram_linked: bool = False
+    telegram_username: str | None = None
+
+
+
 class TelegramLinkRequest(BaseModel):
     telegram_chat_id: str
     telegram_username: str | None = None

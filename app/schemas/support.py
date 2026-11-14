@@ -42,3 +42,8 @@ class SupportTicketResponse(BaseModel):
     screen_sharing_active: bool
     created_at: datetime
     messages: list[SupportMessageResponse] = Field(default_factory=list)
+
+
+class SupportTicketStatusUpdate(BaseModel):
+    status: str = Field(..., examples=["in_progress", "resolved", "closed"])
+

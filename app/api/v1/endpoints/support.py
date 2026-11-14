@@ -13,6 +13,7 @@ from app.schemas.support import (
     SupportMessageResponse,
     SupportTicketCreate,
     SupportTicketResponse,
+    SupportTicketStatusUpdate,
 )
 from app.services.websocket_manager import ws_manager
 
@@ -166,3 +167,28 @@ async def post_support_message(
     )
 
     return message
+
+
+@router.patch("/tickets/{id}/status", response_model=SupportTicketResponse)
+async def update_ticket_status(
+    id: str,
+    payload: SupportTicketStatusUpdate,
+    db: AsyncSession = Depends(get_db),
+):
+    stmt = (
+        select(SupportTicket)
+        .options(selectinload(SupportTicket.messages))
+        .where(SupportTicket.id == id)
+    )
+    res = await db.execute(stmt)
+    ticket = res.scalar_one_or_none()
+    if not ticket:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Support ticket not found"
+        )
+
+    ticket.status = payload.status
+    await db.commit()
+    await db.refresh(ticket)
+    return ticket
+

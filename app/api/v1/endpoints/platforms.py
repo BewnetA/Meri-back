@@ -13,18 +13,66 @@ from app.core.security import (
 from app.models.platform import Platform, PlatformConfiguration, PlatformDomain
 from app.schemas.platform import (
     BrandingConfig,
+    DomainAddRequest,
     FeaturesConfig,
     IntegrationVerifyRequest,
     IntegrationVerifyResponse,
     PlatformCreate,
     PlatformRegistrationResult,
     PlatformResponse,
+    PlatformStatusUpdate,
     PluginConfigResponse,
     PluginConfigUpdate,
+    RotateKeysResponse,
     ThemeConfig,
 )
 
 router = APIRouter()
+
+
+@router.get("", response_model=list[PlatformResponse])
+async def list_platforms(
+    db: AsyncSession = Depends(get_db),
+):
+    """Lists all registered platforms and their configuration."""
+    stmt = (
+        select(Platform)
+        .options(selectinload(Platform.configuration), selectinload(Platform.domains))
+        .order_by(Platform.created_at.desc())
+    )
+    res = await db.execute(stmt)
+    platforms = res.scalars().all()
+
+    result = []
+    for platform in platforms:
+        domains = [d.domain for d in platform.domains]
+        cfg = None
+        if platform.configuration:
+            c = platform.configuration
+            cfg = PluginConfigResponse(
+                platform_name=c.platform_name,
+                theme=ThemeConfig(**c.theme),
+                branding=BrandingConfig(**c.branding),
+                welcome_message=c.welcome_message,
+                language=c.language,
+                position=c.position,
+                size=c.size,
+                features=FeaturesConfig(**c.features),
+                context_extraction_rules=c.context_extraction_rules or {},
+                public_key=platform.public_key,
+            )
+        result.append(
+            PlatformResponse(
+                id=platform.id,
+                name=platform.name,
+                domain=platform.domain,
+                public_key=platform.public_key,
+                enabled=platform.enabled,
+                domains=domains,
+                configuration=cfg,
+            )
+        )
+    return result
 
 
 @router.post("", response_model=PlatformRegistrationResult, status_code=status.HTTP_201_CREATED)
@@ -210,6 +258,129 @@ async def update_platform_plugin_config(
         context_extraction_rules=config.context_extraction_rules or {},
         public_key=platform.public_key,
     )
+
+
+@router.post("/{id}/rotate-keys", response_model=RotateKeysResponse)
+async def rotate_platform_keys(
+    id: str,
+    db: AsyncSession = Depends(get_db),
+):
+    """Generates a new private secret integration key for the platform."""
+    stmt = select(Platform).where(Platform.id == id)
+    res = await db.execute(stmt)
+    platform = res.scalar_one_or_none()
+    if not platform:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Platform not found")
+
+    new_secret = generate_secret_key()
+    platform.secret_key_hash = hash_secret_key(new_secret)
+    await db.commit()
+
+    return RotateKeysResponse(
+        id=platform.id,
+        public_key=platform.public_key,
+        secret_key=new_secret,
+        message="Integration credentials successfully rotated. Update your backend environment variables with the new secret key.",
+    )
+
+
+@router.patch("/{id}/status", response_model=PlatformResponse)
+async def update_platform_status(
+    id: str,
+    payload: PlatformStatusUpdate,
+    db: AsyncSession = Depends(get_db),
+):
+    """Enables or disables a platform integration."""
+    stmt = (
+        select(Platform)
+        .options(selectinload(Platform.configuration), selectinload(Platform.domains))
+        .where(Platform.id == id)
+    )
+    res = await db.execute(stmt)
+    platform = res.scalar_one_or_none()
+    if not platform:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Platform not found")
+
+    platform.enabled = payload.enabled
+    await db.commit()
+    await db.refresh(platform)
+
+    domains = [d.domain for d in platform.domains]
+    cfg = None
+    if platform.configuration:
+        c = platform.configuration
+        cfg = PluginConfigResponse(
+            platform_name=c.platform_name,
+            theme=ThemeConfig(**c.theme),
+            branding=BrandingConfig(**c.branding),
+            welcome_message=c.welcome_message,
+            language=c.language,
+            position=c.position,
+            size=c.size,
+            features=FeaturesConfig(**c.features),
+            context_extraction_rules=c.context_extraction_rules or {},
+            public_key=platform.public_key,
+        )
+
+    return PlatformResponse(
+        id=platform.id,
+        name=platform.name,
+        domain=platform.domain,
+        public_key=platform.public_key,
+        enabled=platform.enabled,
+        domains=domains,
+        configuration=cfg,
+    )
+
+
+@router.post("/{id}/domains")
+async def add_platform_domain(
+    id: str,
+    payload: DomainAddRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """Adds an authorized origin domain for the platform."""
+    stmt = select(Platform).where(Platform.id == id)
+    res = await db.execute(stmt)
+    platform = res.scalar_one_or_none()
+    if not platform:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Platform not found")
+
+    existing = await db.execute(
+        select(PlatformDomain).where(
+            PlatformDomain.platform_id == id,
+            PlatformDomain.domain == payload.domain,
+        )
+    )
+    if existing.scalar_one_or_none():
+        return {"status": "ok", "message": "Domain already registered", "domain": payload.domain}
+
+    domain_obj = PlatformDomain(platform_id=id, domain=payload.domain, is_verified=True)
+    db.add(domain_obj)
+    await db.commit()
+    return {"status": "ok", "message": "Domain added successfully", "domain": payload.domain}
+
+
+@router.delete("/{id}/domains/{domain_id}")
+async def delete_platform_domain(
+    id: str,
+    domain_id: str,
+    db: AsyncSession = Depends(get_db),
+):
+    """Removes an authorized domain from the platform."""
+    stmt = select(PlatformDomain).where(
+        PlatformDomain.platform_id == id,
+        (PlatformDomain.id == domain_id) | (PlatformDomain.domain == domain_id),
+    )
+    res = await db.execute(stmt)
+    dom = res.scalar_one_or_none()
+    if not dom:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Domain not found")
+
+    await db.delete(dom)
+    await db.commit()
+    return {"status": "ok", "message": "Domain removed"}
+
 
 
 @router.post("/integrations/verify", response_model=IntegrationVerifyResponse)

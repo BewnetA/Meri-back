@@ -82,3 +82,19 @@ class IntegrationVerifyResponse(BaseModel):
     platform_id: str
     platform_name: str
     message: str
+
+
+class DomainAddRequest(BaseModel):
+    domain: str
+
+
+class PlatformStatusUpdate(BaseModel):
+    enabled: bool
+
+
+class RotateKeysResponse(BaseModel):
+    id: str
+    public_key: str
+    secret_key: str
+    message: str
+

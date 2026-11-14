@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
@@ -16,6 +17,7 @@ from app.models.platform import Platform
 from app.models.user import TelegramAccount, User, UserPlatformMembership
 from app.schemas.auth import (
     HostPlatformLearnerTokenRequest,
+    LearnerAdminResponse,
     LoginRequest,
     TelegramLinkRequest,
     TelegramPlatformOption,
@@ -271,3 +273,41 @@ async def select_telegram_platform(
     tg.active_platform_id = payload.platform_id
     await db.commit()
     return {"status": "success", "message": "Active platform updated"}
+
+
+@router.get("/learners", response_model=list[LearnerAdminResponse])
+async def list_registered_learners(
+    db: AsyncSession = Depends(get_db),
+):
+    """Lists registered learners, their phone verification status, and linked Telegram identity."""
+    stmt = (
+        select(User)
+        .options(selectinload(User.phones), selectinload(User.telegram_account))
+        .where(User.role == "learner")
+        .order_by(User.created_at.desc())
+    )
+    res = await db.execute(stmt)
+    users = res.scalars().all()
+
+    result = []
+    for u in users:
+        primary_phone = u.phones[0].phone_number if u.phones else None
+        phone_verified = u.phones[0].is_verified if u.phones else False
+        tg_linked = u.telegram_account.is_verified if u.telegram_account else False
+        tg_username = u.telegram_account.telegram_username if u.telegram_account else None
+
+        result.append(
+            LearnerAdminResponse(
+                id=u.id,
+                full_name=u.full_name,
+                email=u.email,
+                role=u.role,
+                is_active=u.is_active,
+                phone_number=primary_phone,
+                phone_verified=phone_verified,
+                telegram_linked=tg_linked,
+                telegram_username=tg_username,
+            )
+        )
+    return result
+

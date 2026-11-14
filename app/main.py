@@ -1,8 +1,12 @@
 import logging
 from contextlib import asynccontextmanager
 
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
 
 import app.models  # Ensures all ORM models are registered in metadata
 from app.api.v1.router import api_router
@@ -53,6 +57,15 @@ app.add_middleware(
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
+# Mount static assets and administrative platform hub
+static_dir = Path(__file__).parent / "static"
+admin_dir = static_dir / "admin"
+if static_dir.exists():
+    app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+if admin_dir.exists():
+    app.mount("/admin", StaticFiles(directory=str(admin_dir), html=True), name="admin")
+    app.mount("/dashboard", StaticFiles(directory=str(admin_dir), html=True), name="dashboard")
+
 
 @app.get("/", tags=["Health"])
 async def root():
@@ -61,6 +74,7 @@ async def root():
         "version": settings.VERSION,
         "status": "operational",
         "docs_url": "/docs",
+        "admin_hub": "/admin",
     }
 
 

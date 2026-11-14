@@ -1,0 +1,1493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BridgeMate Platform Hub — Administration & Customization</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .tab-active {
+      border-bottom: 2px solid #16a34a;
+      color: #16a34a;
+      font-weight: 600;
+    }
+    .preview-phone-shadow {
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col font-sans">
+
+  <!-- Top Navigation Bar -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-white shadow-md">
+          <i data-lucide="layers" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-lg text-slate-900 tracking-tight">BridgeMate</span>
+            <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800">Platform Hub</span>
+          </div>
+          <p class="text-xs text-slate-500">Universal Context-Aware AI & Integration Management</p>
+        </div>
+      </div>
+
+      <!-- Center Platform Selector -->
+      <div class="flex items-center gap-3">
+        <label for="platformSelect" class="text-xs font-medium text-slate-600 hidden sm:inline">Active Platform:</label>
+        <select id="platformSelect" onchange="onSelectPlatformChange()" class="text-sm bg-slate-100 hover:bg-slate-200/80 border border-slate-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium text-slate-800">
+          <option value="">Loading platforms...</option>
+        </select>
+        <button onclick="openRegisterPlatformModal()" class="flex items-center gap-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-3 py-1.5 rounded-lg shadow-sm transition">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+          <span>New Platform</span>
+        </button>
+      </div>
+
+      <!-- Right Admin Profile & Status -->
+      <div class="flex items-center gap-4">
+        <div class="hidden md:flex items-center gap-2 text-xs text-slate-600">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+          <span>API: Operational</span>
+        </div>
+        <div class="flex items-center gap-2 border-l border-slate-200 pl-4 text-xs">
+          <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold">
+            A
+          </div>
+          <span class="font-medium text-slate-700 hidden lg:inline">admin@bridgemate.internal</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-100">
+      <nav class="flex space-x-8 overflow-x-auto text-sm font-medium text-slate-500">
+        <button onclick="switchTab('platforms')" id="tab-btn-platforms" class="py-3 px-1 tab-active flex items-center gap-2">
+          <i data-lucide="globe" class="w-4 h-4"></i>
+          <span>Platforms & Keys</span>
+        </button>
+        <button onclick="switchTab('theming')" id="tab-btn-theming" class="py-3 px-1 hover:text-slate-900 flex items-center gap-2">
+          <i data-lucide="palette" class="w-4 h-4"></i>
+          <span>Plugin Studio</span>
+        </button>
+        <button onclick="switchTab('knowledge')" id="tab-btn-knowledge" class="py-3 px-1 hover:text-slate-900 flex items-center gap-2">
+          <i data-lucide="book-open" class="w-4 h-4"></i>
+          <span>Knowledge & Courses</span>
+        </button>
+        <button onclick="switchTab('jobs')" id="tab-btn-jobs" class="py-3 px-1 hover:text-slate-900 flex items-center gap-2">
+          <i data-lucide="briefcase" class="w-4 h-4"></i>
+          <span>Career Gateway</span>
+        </button>
+        <button onclick="switchTab('learners')" id="tab-btn-learners" class="py-3 px-1 hover:text-slate-900 flex items-center gap-2">
+          <i data-lucide="users" class="w-4 h-4"></i>
+          <span>Learners & Telegram</span>
+        </button>
+        <button onclick="switchTab('support')" id="tab-btn-support" class="py-3 px-1 hover:text-slate-900 flex items-center gap-2">
+          <i data-lucide="life-buoy" class="w-4 h-4"></i>
+          <span>Support Center</span>
+        </button>
+        <button onclick="switchTab('analytics')" id="tab-btn-analytics" class="py-3 px-1 hover:text-slate-900 flex items-center gap-2">
+          <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+          <span>Analytics</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content Canvas -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- TAB 1: PLATFORMS & KEYS -->
+    <section id="tab-platforms" class="space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">Registered Learning Platforms</h2>
+          <p class="text-sm text-slate-500">Manage connected learning management systems, public embed keys, and secure server-to-server credentials.</p>
+        </div>
+        <button onclick="openRegisterPlatformModal()" class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium shadow-sm transition">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i>
+          <span>Register New Platform</span>
+        </button>
+      </div>
+
+      <!-- Quick Platform Cards Grid -->
+      <div id="platformsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Rendered via JS -->
+      </div>
+
+      <!-- Integration Code Snippet Helper -->
+      <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+        <h3 class="text-base font-semibold text-slate-900 flex items-center gap-2">
+          <i data-lucide="code" class="w-5 h-5 text-emerald-600"></i>
+          <span>Universal Embed Installation Snippet</span>
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">Copy and paste this script tag into the HTML head or before the closing body tag of your learning platform.</p>
+        <div class="mt-4 bg-slate-900 text-slate-100 p-4 rounded-lg font-mono text-xs overflow-x-auto relative group">
+          <pre id="embedSnippetCode">&lt;script src="http://localhost:8000/static/meri.js" data-public-key="YOUR_PUBLIC_KEY" defer&gt;&lt;/script&gt;</pre>
+          <button onclick="copySnippet()" class="absolute right-3 top-3 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-2.5 py-1 rounded text-xs flex items-center gap-1 border border-slate-700">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            <span>Copy</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: PLUGIN CUSTOMIZATION STUDIO (Live Preview & Theming) -->
+    <section id="tab-theming" class="hidden space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">Plugin Customization Studio</h2>
+          <p class="text-sm text-slate-500">Customize the appearance, welcome messages, and features of your BridgeMate assistant with real-time preview.</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <button onclick="resetDefaultTheme()" class="px-3 py-1.5 text-xs text-slate-600 hover:text-slate-900 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+            Reset Defaults
+          </button>
+          <button onclick="savePluginConfig()" class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium shadow-sm transition">
+            <i data-lucide="save" class="w-4 h-4"></i>
+            <span>Save Configuration</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <!-- Configuration Controls (Left 7 Cols) -->
+        <div class="lg:col-span-7 space-y-6">
+
+          <!-- Brand Colors Card -->
+          <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-4">
+            <h3 class="text-sm font-semibold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+              <i data-lucide="paint-brush" class="w-4 h-4 text-emerald-600"></i>
+              <span>Brand & Theme Colors</span>
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Primary Color</label>
+                <div class="flex items-center gap-2">
+                  <input type="color" id="cfg-color-primary" oninput="updateLivePreview()" class="w-9 h-9 rounded cursor-pointer border border-slate-300 p-0.5">
+                  <input type="text" id="cfg-color-primary-text" oninput="syncColorFromText('primary')" class="flex-1 text-xs font-mono uppercase bg-slate-50 border border-slate-300 rounded px-2.5 py-1.5">
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Secondary Accent</label>
+                <div class="flex items-center gap-2">
+                  <input type="color" id="cfg-color-secondary" oninput="updateLivePreview()" class="w-9 h-9 rounded cursor-pointer border border-slate-300 p-0.5">
+                  <input type="text" id="cfg-color-secondary-text" oninput="syncColorFromText('secondary')" class="flex-1 text-xs font-mono uppercase bg-slate-50 border border-slate-300 rounded px-2.5 py-1.5">
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Launcher Button Color</label>
+                <div class="flex items-center gap-2">
+                  <input type="color" id="cfg-color-chatbtn" oninput="updateLivePreview()" class="w-9 h-9 rounded cursor-pointer border border-slate-300 p-0.5">
+                  <input type="text" id="cfg-color-chatbtn-text" oninput="syncColorFromText('chatbtn')" class="flex-1 text-xs font-mono uppercase bg-slate-50 border border-slate-300 rounded px-2.5 py-1.5">
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Widget Background</label>
+                <div class="flex items-center gap-2">
+                  <input type="color" id="cfg-color-bg" oninput="updateLivePreview()" class="w-9 h-9 rounded cursor-pointer border border-slate-300 p-0.5">
+                  <input type="text" id="cfg-color-bg-text" oninput="syncColorFromText('bg')" class="flex-1 text-xs font-mono uppercase bg-slate-50 border border-slate-300 rounded px-2.5 py-1.5">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Identity & Copy Card -->
+          <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-4">
+            <h3 class="text-sm font-semibold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+              <i data-lucide="tag" class="w-4 h-4 text-emerald-600"></i>
+              <span>Branding & Greeting</span>
+            </h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Platform Display Name</label>
+                <input type="text" id="cfg-platform-name" oninput="updateLivePreview()" class="w-full text-sm bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500">
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Logo URL</label>
+                <input type="url" id="cfg-logo-url" oninput="updateLivePreview()" placeholder="https://..." class="w-full text-sm bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500">
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Welcome Message</label>
+                <textarea id="cfg-welcome-message" oninput="updateLivePreview()" rows="2" class="w-full text-sm bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Layout & Feature Toggles Card -->
+          <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-4">
+            <h3 class="text-sm font-semibold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+              <i data-lucide="sliders" class="w-4 h-4 text-emerald-600"></i>
+              <span>Widget Layout & Capabilities</span>
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Widget Position</label>
+                <select id="cfg-position" onchange="updateLivePreview()" class="w-full text-sm bg-slate-50 border border-slate-300 rounded-lg px-3 py-2">
+                  <option value="bottom-right">Bottom Right (Standard)</option>
+                  <option value="bottom-left">Bottom Left</option>
+                  <option value="top-right">Top Right</option>
+                  <option value="top-left">Top Left</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Default Language</label>
+                <select id="cfg-language" onchange="updateLivePreview()" class="w-full text-sm bg-slate-50 border border-slate-300 rounded-lg px-3 py-2">
+                  <option value="en">English (US/UK)</option>
+                  <option value="am">Amharic (አማርኛ)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Features Checkboxes -->
+            <div class="pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-slate-700">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" id="cfg-feat-voice" checked class="rounded text-emerald-600 focus:ring-emerald-500">
+                <span>Voice Speech & Dictation</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" id="cfg-feat-human" checked class="rounded text-emerald-600 focus:ring-emerald-500">
+                <span>Live Human Support Modal</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" id="cfg-feat-simple" checked class="rounded text-emerald-600 focus:ring-emerald-500">
+                <span>Simple Mode (Low Bandwidth)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" id="cfg-feat-jobs" checked class="rounded text-emerald-600 focus:ring-emerald-500">
+                <span>Career Gateway & Job Matching</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" id="cfg-feat-course" checked class="rounded text-emerald-600 focus:ring-emerald-500">
+                <span>Institutional Course Tutor</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Widget Preview Canvas (Right 5 Cols) -->
+        <div class="lg:col-span-5 sticky top-24">
+          <div class="bg-slate-200/80 rounded-2xl p-4 border border-slate-300 preview-phone-shadow">
+            <div class="flex items-center justify-between pb-3 text-xs font-semibold text-slate-600">
+              <div class="flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-red-400"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-yellow-400"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                <span class="ml-2 font-mono text-[11px] text-slate-500">Live Preview: Savanna LMS</span>
+              </div>
+              <span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[10px]">Real-Time</span>
+            </div>
+
+            <!-- Simulated Host Webpage Canvas -->
+            <div class="relative bg-slate-100 rounded-xl h-[560px] border border-slate-300 overflow-hidden flex flex-col">
+              <!-- Fake Webpage Header -->
+              <div class="bg-white px-4 py-2.5 border-b border-slate-200 flex items-center justify-between text-xs">
+                <div class="flex items-center gap-2">
+                  <div class="w-5 h-5 bg-emerald-600 rounded"></div>
+                  <span class="font-bold text-slate-800">Savanna Learning</span>
+                </div>
+                <div class="flex gap-2 text-slate-400 text-[10px]">
+                  <span>Courses</span>
+                  <span>Jobs</span>
+                  <span>Support</span>
+                </div>
+              </div>
+
+              <!-- Fake Webpage Body -->
+              <div class="p-4 space-y-3 flex-1 overflow-hidden opacity-40">
+                <div class="h-4 bg-slate-300 rounded w-3/4"></div>
+                <div class="h-3 bg-slate-200 rounded w-full"></div>
+                <div class="h-3 bg-slate-200 rounded w-5/6"></div>
+                <div class="h-24 bg-slate-200 rounded-lg w-full mt-4"></div>
+              </div>
+
+              <!-- Live Floating Launcher Button Preview -->
+              <div id="previewLauncherBtn" class="absolute bottom-4 right-4 z-10 w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-white cursor-pointer transition-all hover:scale-105">
+                <i data-lucide="sparkles" class="w-6 h-6"></i>
+              </div>
+
+              <!-- Live Mini Chat Window Preview -->
+              <div id="previewWidgetWindow" class="absolute bottom-18 right-4 w-[280px] bg-white rounded-xl shadow-2xl border border-slate-300 overflow-hidden text-xs flex flex-col z-20">
+                <!-- Header -->
+                <div id="previewHeader" class="p-3 text-white flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <img id="previewLogo" src="https://bridgemate.example.com/logo.png" onerror="this.src='https://ui-avatars.com/api/?name=BM&background=10b981&color=fff'" class="w-6 h-6 rounded-full border border-white/20">
+                    <div>
+                      <div id="previewPlatformName" class="font-bold text-xs leading-none">Savanna Assistant</div>
+                      <div class="text-[9px] text-white/80 leading-tight">BridgeMate Context AI</div>
+                    </div>
+                  </div>
+                  <i data-lucide="minimize-2" class="w-3.5 h-3.5 opacity-80"></i>
+                </div>
+
+                <!-- Context Bar -->
+                <div class="px-2.5 py-1.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-[10px] text-slate-600">
+                  <div class="flex items-center gap-1">
+                    <i data-lucide="book-open" class="w-3 h-3 text-emerald-600"></i>
+                    <span class="font-medium">Course: CS101 Lesson 2</span>
+                  </div>
+                  <span class="text-emerald-700 bg-emerald-100 px-1 rounded text-[9px]">Context Active</span>
+                </div>
+
+                <!-- Chat Feed -->
+                <div class="p-3 space-y-2 h-[200px] bg-slate-50/50 overflow-y-auto">
+                  <div class="bg-white border border-slate-200 rounded-lg p-2.5 text-slate-700 shadow-sm">
+                    <p id="previewWelcomeMessage" class="text-[11px] leading-relaxed">
+                      Hello! How can I assist your learning and career today?
+                    </p>
+                  </div>
+                  <div class="bg-emerald-50 border border-emerald-100 rounded-lg p-2 text-emerald-900 text-[10px] ml-4">
+                    Explain recursion in Python for Lesson 2
+                  </div>
+                </div>
+
+                <!-- Fake Input Bar -->
+                <div class="p-2 bg-white border-t border-slate-200 flex items-center gap-1.5">
+                  <input type="text" placeholder="Ask a question..." disabled class="flex-1 bg-slate-100 text-[10px] px-2 py-1 rounded border border-slate-200">
+                  <div id="previewSendBtn" class="w-6 h-6 rounded flex items-center justify-center text-white">
+                    <i data-lucide="send" class="w-3 h-3"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: KNOWLEDGE & COURSES -->
+    <section id="tab-knowledge" class="hidden space-y-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">Institutional Knowledge & Grounding</h2>
+          <p class="text-sm text-slate-500">Upload course materials, curate verified FAQs, and test semantic vector retrieval.</p>
+        </div>
+        <button onclick="openUploadDocModal()" class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium shadow-sm transition">
+          <i data-lucide="upload" class="w-4 h-4"></i>
+          <span>Upload Course Material</span>
+        </button>
+      </div>
+
+      <!-- Active Courses List & Document Repository -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Courses Card -->
+        <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-base font-semibold text-slate-900 flex items-center gap-2">
+              <i data-lucide="graduation-cap" class="w-5 h-5 text-emerald-600"></i>
+              <span>Active Courses</span>
+            </h3>
+            <button onclick="openCreateCourseModal()" class="text-xs text-emerald-700 hover:text-emerald-800 font-semibold flex items-center gap-1">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Course
+            </button>
+          </div>
+          <div id="coursesList" class="divide-y divide-slate-100">
+            <div class="py-4 text-center text-slate-400 text-xs">Loading courses...</div>
+          </div>
+        </div>
+
+        <!-- Uploaded Documents Card -->
+        <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-4">
+          <h3 class="text-base font-semibold text-slate-900 flex items-center gap-2">
+            <i data-lucide="file-text" class="w-5 h-5 text-emerald-600"></i>
+            <span>Course Documents & Chunks</span>
+          </h3>
+          <div id="documentsList" class="divide-y divide-slate-100 max-h-[340px] overflow-y-auto">
+            <div class="py-4 text-center text-slate-400 text-xs">Loading documents...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Semantic Vector Search Tester -->
+      <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-4">
+        <h3 class="text-base font-semibold text-slate-900 flex items-center gap-2">
+          <i data-lucide="search" class="w-5 h-5 text-emerald-600"></i>
+          <span>Institutional Vector RAG Search Tester</span>
+        </h3>
+        <p class="text-xs text-slate-500">Test how the AI retrieves chunks and verifies answers with citations from your uploaded materials.</p>
+        <div class="flex gap-2">
+          <input type="text" id="ragTestQuery" placeholder="Enter query (e.g. 'How does binary search work in CS101?')" class="flex-1 text-sm bg-slate-50 border border-slate-300 rounded-lg px-3 py-2">
+          <button onclick="testRAGSearch()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium text-xs flex items-center gap-1.5">
+            <i data-lucide="sparkles" class="w-4 h-4"></i>
+            <span>Test Similarity Search</span>
+          </button>
+        </div>
+        <div id="ragResults" class="space-y-3 pt-2"></div>
+      </div>
+
+      <!-- Verified Institutional FAQs -->
+      <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-base font-semibold text-slate-900 flex items-center gap-2">
+              <i data-lucide="help-circle" class="w-5 h-5 text-emerald-600"></i>
+              <span>Institutional Approved FAQs</span>
+            </h3>
+            <p class="text-xs text-slate-500">Guarantees deterministic, instant offline fallback when internet bandwidth is limited.</p>
+          </div>
+          <button onclick="openCreateFaqModal()" class="flex items-center gap-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-3 py-1.5 rounded-lg">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            <span>Add FAQ</span>
+          </button>
+        </div>
+        <div id="faqsList" class="divide-y divide-slate-100">
+          <div class="py-4 text-center text-slate-400 text-xs">Loading institutional FAQs...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: CAREER GATEWAY -->
+    <section id="tab-jobs" class="hidden space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">Career Gateway & Job Opportunities</h2>
+          <p class="text-sm text-slate-500">Curate partner employment opportunities, required competencies, and inclusive accommodations.</p>
+        </div>
+        <button onclick="openPostJobModal()" class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium shadow-sm transition">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i>
+          <span>Post New Job</span>
+        </button>
+      </div>
+
+      <div id="jobsList" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="py-8 text-center text-slate-400 text-xs col-span-2">Loading job listings...</div>
+      </div>
+    </section>
+
+    <!-- TAB 5: LEARNERS & TELEGRAM HUB -->
+    <section id="tab-learners" class="hidden space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">Learners & Telegram Integration Hub</h2>
+          <p class="text-sm text-slate-500">Review registered platform learners, phone number verification, and linked Telegram identities.</p>
+        </div>
+        <button onclick="loadLearners()" class="flex items-center gap-1.5 text-xs bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-slate-700 hover:bg-slate-50">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh Learners
+        </button>
+      </div>
+
+      <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-50 text-slate-600 border-b border-slate-200">
+                <th class="py-3 px-4 font-semibold">Learner Name</th>
+                <th class="py-3 px-4 font-semibold">Email</th>
+                <th class="py-3 px-4 font-semibold">Verified Phone</th>
+                <th class="py-3 px-4 font-semibold">Telegram Identity</th>
+                <th class="py-3 px-4 font-semibold">Status</th>
+              </tr>
+            </thead>
+            <tbody id="learnersTableBody" class="divide-y divide-slate-100">
+              <tr>
+                <td colspan="5" class="py-6 text-center text-slate-400">Loading registered learners...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 6: SUPPORT CENTER -->
+    <section id="tab-support" class="hidden space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">Human Assistance Support Center</h2>
+          <p class="text-sm text-slate-500">Manage escalated requests from learners when AI provides uncertain answers or complex support is required.</p>
+        </div>
+        <button onclick="loadTickets()" class="flex items-center gap-1.5 text-xs bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-slate-700 hover:bg-slate-50">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh Tickets
+        </button>
+      </div>
+
+      <div id="ticketsContainer" class="space-y-4">
+        <div class="py-8 text-center text-slate-400 text-xs">Loading support tickets...</div>
+      </div>
+    </section>
+
+    <!-- TAB 7: ANALYTICS -->
+    <section id="tab-analytics" class="hidden space-y-6">
+      <div>
+        <h2 class="text-xl font-bold text-slate-900">Platform Analytics & Intelligence</h2>
+        <p class="text-sm text-slate-500">Monitor learner engagement, AI provider failover distribution, and knowledge gaps.</p>
+      </div>
+
+      <!-- Top KPI Metric Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Learners</div>
+            <div id="metricLearners" class="text-2xl font-bold text-slate-900 mt-1">1,248</div>
+            <div class="text-[11px] text-emerald-600 mt-1 flex items-center gap-1">
+              <i data-lucide="trending-up" class="w-3 h-3"></i> +14% this month
+            </div>
+          </div>
+          <div class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
+            <i data-lucide="users" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Conversations</div>
+            <div id="metricConversations" class="text-2xl font-bold text-slate-900 mt-1">8,930</div>
+            <div class="text-[11px] text-emerald-600 mt-1 flex items-center gap-1">
+              <i data-lucide="activity" class="w-3 h-3"></i> 99.4% resolution
+            </div>
+          </div>
+          <div class="w-12 h-12 bg-teal-50 rounded-xl flex items-center justify-center text-teal-600">
+            <i data-lucide="message-square" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Support Requests</div>
+            <div id="metricTickets" class="text-2xl font-bold text-slate-900 mt-1">12</div>
+            <div class="text-[11px] text-slate-500 mt-1">Human live escalations</div>
+          </div>
+          <div class="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600">
+            <i data-lucide="life-buoy" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Grounded Citations</div>
+            <div id="metricCitations" class="text-2xl font-bold text-slate-900 mt-1">96.8%</div>
+            <div class="text-[11px] text-emerald-600 mt-1">Institutional docs</div>
+          </div>
+          <div class="w-12 h-12 bg-sky-50 rounded-xl flex items-center justify-center text-sky-600">
+            <i data-lucide="shield-check" class="w-6 h-6"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Provider Distribution & Unanswered Questions -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+          <h3 class="text-base font-semibold text-slate-900 flex items-center gap-2">
+            <i data-lucide="cpu" class="w-5 h-5 text-emerald-600"></i>
+            <span>3-Tier AI Orchestration Distribution</span>
+          </h3>
+          <p class="text-xs text-slate-500">Distribution of responses served by Gemini, Groq fast-failover, or offline institutional FAQs.</p>
+          <div class="space-y-3 pt-2">
+            <div>
+              <div class="flex justify-between text-xs font-medium text-slate-700 mb-1">
+                <span>Google Gemini 2.5 Flash (Primary Context AI)</span>
+                <span class="font-bold">78%</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-2">
+                <div class="bg-emerald-600 h-2 rounded-full" style="width: 78%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs font-medium text-slate-700 mb-1">
+                <span>Groq Llama-3.3 (Low Latency / Secondary Fallback)</span>
+                <span class="font-bold">18%</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-2">
+                <div class="bg-teal-500 h-2 rounded-full" style="width: 18%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs font-medium text-slate-700 mb-1">
+                <span>Deterministic Offline FAQ Fallback</span>
+                <span class="font-bold">4%</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-2">
+                <div class="bg-amber-500 h-2 rounded-full" style="width: 4%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+          <h3 class="text-base font-semibold text-slate-900 flex items-center gap-2">
+            <i data-lucide="help-circle" class="w-5 h-5 text-emerald-600"></i>
+            <span>Most Inquired Topics</span>
+          </h3>
+          <div class="divide-y divide-slate-100 text-xs">
+            <div class="py-2.5 flex justify-between items-center">
+              <span class="font-medium text-slate-800">Recursion & Time Complexity in CS101</span>
+              <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono">312 asks</span>
+            </div>
+            <div class="py-2.5 flex justify-between items-center">
+              <span class="font-medium text-slate-800">Assignment submission deadlines & late policies</span>
+              <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono">245 asks</span>
+            </div>
+            <div class="py-2.5 flex justify-between items-center">
+              <span class="font-medium text-slate-800">Software Engineer intern qualifications</span>
+              <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono">189 asks</span>
+            </div>
+            <div class="py-2.5 flex justify-between items-center">
+              <span class="font-medium text-slate-800">Requesting assistive accommodations for interviews</span>
+              <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono">142 asks</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: REGISTER NEW PLATFORM -->
+  <div id="modalRegisterPlatform" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-bold text-slate-900">Register New Learning Platform</h3>
+        <button onclick="closeModal('modalRegisterPlatform')" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <form onsubmit="handleRegisterPlatform(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Platform Name</label>
+          <input type="text" id="reg-name" required placeholder="e.g. ALX Savanna LMS" class="w-full text-sm bg-slate-50 border border-slate-300 rounded-lg px-3 py-2">
+        </div>
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Primary Domain (Origin)</label>
+          <input type="text" id="reg-domain" required placeholder="e.g. savanna.alxafrica.com or localhost:5173" class="w-full text-sm bg-slate-50 border border-slate-300 rounded-lg px-3 py-2">
+        </div>
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Additional Allowed Origins (Optional, comma-separated)</label>
+          <input type="text" id="reg-allowed-domains" placeholder="localhost:3000, 127.0.0.1:8080" class="w-full text-sm bg-slate-50 border border-slate-300 rounded-lg px-3 py-2">
+        </div>
+        <div class="pt-2 flex justify-end gap-2">
+          <button type="button" onclick="closeModal('modalRegisterPlatform')" class="px-4 py-2 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50">Cancel</button>
+          <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium">Register Platform</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD COURSE -->
+  <div id="modalCreateCourse" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-bold text-slate-900">Add New Institutional Course</h3>
+        <button onclick="closeModal('modalCreateCourse')" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <form onsubmit="handleCreateCourse(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Course Code</label>
+          <input type="text" id="course-code" required placeholder="e.g. CS102" class="w-full text-sm bg-slate-50 border border-slate-300 rounded-lg px-3 py-2">
+        </div>
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Course Title</label>
+          <input type="text" id="course-title" required placeholder="e.g. Data Structures and Algorithms" class="w-full text-sm bg-slate-50 border border-slate-300 rounded-lg px-3 py-2">
+        </div>
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Instructor Name</label>
+          <input type="text" id="course-instructor" placeholder="e.g. Dr. Abebe Bikila" class="w-full text-sm bg-slate-50 border border-slate-300 rounded-lg px-3 py-2">
+        </div>
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Description</label>
+          <textarea id="course-desc" rows="2" class="w-full text-sm bg-slate-50 border border-slate-300 rounded-lg px-3 py-2"></textarea>
+        </div>
+        <div class="pt-2 flex justify-end gap-2">
+          <button type="button" onclick="closeModal('modalCreateCourse')" class="px-4 py-2 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50">Cancel</button>
+          <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium">Create Course</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: UPLOAD DOCUMENT -->
+  <div id="modalUploadDoc" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-bold text-slate-900">Upload Learning Material</h3>
+        <button onclick="closeModal('modalUploadDoc')" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <form onsubmit="handleUploadDoc(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Select Course</label>
+          <select id="upload-course-select" required class="w-full text-sm bg-slate-50 border border-slate-300 rounded-lg px-3 py-2">
+            <option value="">Select course...</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Document Title</label>
+          <input type="text" id="upload-title" required placeholder="e.g. Lecture 3 Notes on Binary Search" class="w-full text-sm bg-slate-50 border border-slate-300 rounded-lg px-3 py-2">
+        </div>
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">File (PDF, DOCX, TXT, HTML)</label>
+          <input type="file" id="upload-file" required accept=".pdf,.docx,.txt,.html" class="w-full text-xs text-slate-600 border border-slate-300 rounded-lg p-2 bg-slate-50">
+        </div>
+        <div class="pt-2 flex justify-end gap-2">
+          <button type="button" onclick="closeModal('modalUploadDoc')" class="px-4 py-2 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50">Cancel</button>
+          <button type="submit" id="btnUploadSubmit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium">Upload & Process</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: CREATE FAQ -->
+  <div id="modalCreateFaq" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-bold text-slate-900">Add Institutional FAQ</h3>
+        <button onclick="closeModal('modalCreateFaq')" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <form onsubmit="handleCreateFaq(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Category</label>
+          <select id="faq-category" class="w-full text-sm bg-slate-50 border border-slate-300 rounded-lg px-3 py-2">
+            <option value="general">General</option>
+            <option value="course">Course & Academics</option>
+            <option value="job">Career & Jobs</option>
+            <option value="accessibility">Accessibility & Voice</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Question</label>
+          <input type="text" id="faq-question" required placeholder="e.g. How do I ask for interview accommodations?" class="w-full text-sm bg-slate-50 border border-slate-300 rounded-lg px-3 py-2">
+        </div>
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Answer</label>
+          <textarea id="faq-answer" required rows="3" placeholder="Provide accurate, verified guidance..." class="w-full text-sm bg-slate-50 border border-slate-300 rounded-lg px-3 py-2"></textarea>
+        </div>
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Keywords (comma-separated)</label>
+          <input type="text" id="faq-keywords" placeholder="accommodations, interview, career" class="w-full text-sm bg-slate-50 border border-slate-300 rounded-lg px-3 py-2">
+        </div>
+        <div class="pt-2 flex justify-end gap-2">
+          <button type="button" onclick="closeModal('modalCreateFaq')" class="px-4 py-2 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50">Cancel</button>
+          <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium">Save FAQ</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT APPLICATION LOGIC -->
+  <script>
+    // State
+    let platforms = [];
+    let currentPlatform = null;
+    let courses = [];
+    let documents = [];
+
+    const defaultTheme = {
+      primary: '#16A34A',
+      secondary: '#14532D',
+      background: '#FFFFFF',
+      text: '#111827',
+      chat_button: '#16A34A'
+    };
+
+    // Initialize application
+    document.addEventListener('DOMContentLoaded', async () => {
+      lucide.createIcons();
+      await loadPlatforms();
+      await loadCourses();
+      await loadDocuments();
+      await loadFaqs();
+      await loadJobs();
+      await loadLearners();
+      await loadTickets();
+    });
+
+    // Tab Navigation
+    function switchTab(tabId) {
+      const tabs = ['platforms', 'theming', 'knowledge', 'jobs', 'learners', 'support', 'analytics'];
+      tabs.forEach(t => {
+        const sec = document.getElementById(`tab-${t}`);
+        const btn = document.getElementById(`tab-btn-${t}`);
+        if (t === tabId) {
+          sec.classList.remove('hidden');
+          btn.classList.add('tab-active');
+          btn.classList.remove('hover:text-slate-900');
+        } else {
+          sec.classList.add('hidden');
+          btn.classList.remove('tab-active');
+          btn.classList.add('hover:text-slate-900');
+        }
+      });
+      lucide.createIcons();
+    }
+
+    // Modal Helpers
+    function openModal(id) {
+      document.getElementById(id).classList.remove('hidden');
+      lucide.createIcons();
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+    function openRegisterPlatformModal() { openModal('modalRegisterPlatform'); }
+    function openCreateCourseModal() { openModal('modalCreateCourse'); }
+    function openUploadDocModal() { openModal('modalUploadDoc'); }
+    function openCreateFaqModal() { openModal('modalCreateFaq'); }
+    function openPostJobModal() { alert('Job posting modal: Use POST /api/v1/jobs'); }
+
+    // API: Platforms
+    async function loadPlatforms() {
+      try {
+        const res = await fetch('/api/v1/platforms');
+        if (res.ok) {
+          platforms = await res.json();
+          renderPlatformSelect();
+          renderPlatformCards();
+          if (platforms.length > 0 && !currentPlatform) {
+            selectPlatform(platforms[0].id);
+          }
+        }
+      } catch (e) {
+        console.error('Failed to load platforms', e);
+      }
+    }
+
+    function renderPlatformSelect() {
+      const select = document.getElementById('platformSelect');
+      select.innerHTML = '';
+      platforms.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = `${p.name} (${p.domain})`;
+        select.appendChild(opt);
+      });
+    }
+
+    function renderPlatformCards() {
+      const container = document.getElementById('platformsContainer');
+      container.innerHTML = '';
+      platforms.forEach(p => {
+        const card = document.createElement('div');
+        card.className = "bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4 hover:border-emerald-300 transition";
+        card.innerHTML = `
+          <div class="flex items-start justify-between">
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="font-bold text-slate-900">${p.name}</h3>
+                <span class="px-2 py-0.5 text-[10px] font-bold rounded-full ${p.enabled ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+                  ${p.enabled ? 'ACTIVE' : 'DISABLED'}
+                </span>
+              </div>
+              <p class="text-xs text-slate-500 font-mono mt-0.5">${p.domain}</p>
+            </div>
+            <button onclick="togglePlatformStatus('${p.id}', ${!p.enabled})" class="text-xs text-slate-500 hover:text-slate-800 font-medium">
+              ${p.enabled ? 'Disable' : 'Enable'}
+            </button>
+          </div>
+
+          <!-- Public Key -->
+          <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+            <div class="flex justify-between items-center text-[11px] text-slate-500 mb-1">
+              <span>Public Installation Key:</span>
+              <button onclick="copyToClipboard('${p.public_key}')" class="text-emerald-700 hover:underline flex items-center gap-1 font-semibold">
+                <i data-lucide="copy" class="w-3 h-3"></i> Copy
+              </button>
+            </div>
+            <code class="text-xs font-mono text-slate-800 break-all select-all">${p.public_key}</code>
+          </div>
+
+          <!-- Allowed Domains -->
+          <div>
+            <div class="text-[11px] font-semibold text-slate-600 mb-1">Authorized Origins:</div>
+            <div class="flex flex-wrap gap-1">
+              ${p.domains.map(d => `<span class="bg-slate-100 text-slate-700 border border-slate-200 px-2 py-0.5 rounded text-[11px] font-mono">${d}</span>`).join('')}
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
+            <button onclick="selectPlatform('${p.id}'); switchTab('theming')" class="text-xs text-emerald-700 hover:text-emerald-800 font-semibold flex items-center gap-1">
+              <i data-lucide="palette" class="w-3.5 h-3.5"></i> Customization Studio
+            </button>
+            <button onclick="rotateKey('${p.id}')" class="text-xs text-amber-700 hover:text-amber-800 font-semibold flex items-center gap-1">
+              <i data-lucide="key" class="w-3.5 h-3.5"></i> Rotate Secret Key
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+      lucide.createIcons();
+    }
+
+    function onSelectPlatformChange() {
+      const select = document.getElementById('platformSelect');
+      selectPlatform(select.value);
+    }
+
+    function selectPlatform(platformId) {
+      currentPlatform = platforms.find(p => p.id === platformId) || platforms[0];
+      if (!currentPlatform) return;
+
+      document.getElementById('platformSelect').value = currentPlatform.id;
+      document.getElementById('embedSnippetCode').textContent = `<script src="${window.location.origin}/static/meri.js" data-public-key="${currentPlatform.public_key}" defer><\/script>`;
+
+      // Populate Theming form
+      const cfg = currentPlatform.configuration || {};
+      const theme = cfg.theme || defaultTheme;
+      document.getElementById('cfg-color-primary').value = theme.primary || defaultTheme.primary;
+      document.getElementById('cfg-color-primary-text').value = theme.primary || defaultTheme.primary;
+      document.getElementById('cfg-color-secondary').value = theme.secondary || defaultTheme.secondary;
+      document.getElementById('cfg-color-secondary-text').value = theme.secondary || defaultTheme.secondary;
+      document.getElementById('cfg-color-chatbtn').value = theme.chat_button || defaultTheme.chat_button;
+      document.getElementById('cfg-color-chatbtn-text').value = theme.chat_button || defaultTheme.chat_button;
+      document.getElementById('cfg-color-bg').value = theme.background || defaultTheme.background;
+      document.getElementById('cfg-color-bg-text').value = theme.background || defaultTheme.background;
+
+      document.getElementById('cfg-platform-name').value = cfg.platform_name || currentPlatform.name;
+      document.getElementById('cfg-logo-url').value = (cfg.branding && cfg.branding.logo_url) || '';
+      document.getElementById('cfg-welcome-message').value = cfg.welcome_message || 'Hello! How can I assist your learning and career today?';
+      document.getElementById('cfg-position').value = cfg.position || 'bottom-right';
+      document.getElementById('cfg-language').value = cfg.language || 'en';
+
+      const feat = cfg.features || {};
+      document.getElementById('cfg-feat-voice').checked = feat.voice !== false;
+      document.getElementById('cfg-feat-human').checked = feat.human_support !== false;
+      document.getElementById('cfg-feat-simple').checked = feat.simple_mode !== false;
+      document.getElementById('cfg-feat-jobs').checked = feat.job_assistance !== false;
+      document.getElementById('cfg-feat-course').checked = feat.course_assistant !== false;
+
+      updateLivePreview();
+    }
+
+    // Live Preview Synchronization
+    function updateLivePreview() {
+      const primary = document.getElementById('cfg-color-primary').value;
+      const secondary = document.getElementById('cfg-color-secondary').value;
+      const chatbtn = document.getElementById('cfg-color-chatbtn').value;
+      const bg = document.getElementById('cfg-color-bg').value;
+      const name = document.getElementById('cfg-platform-name').value || 'Assistant';
+      const welcome = document.getElementById('cfg-welcome-message').value || 'Hello!';
+      const logo = document.getElementById('cfg-logo-url').value;
+
+      document.getElementById('cfg-color-primary-text').value = primary;
+      document.getElementById('cfg-color-secondary-text').value = secondary;
+      document.getElementById('cfg-color-chatbtn-text').value = chatbtn;
+      document.getElementById('cfg-color-bg-text').value = bg;
+
+      // Update Preview DOM
+      document.getElementById('previewLauncherBtn').style.backgroundColor = chatbtn;
+      document.getElementById('previewHeader').style.background = `linear-gradient(to right, ${primary}, ${secondary})`;
+      document.getElementById('previewSendBtn').style.backgroundColor = primary;
+      document.getElementById('previewPlatformName').textContent = name;
+      document.getElementById('previewWelcomeMessage').textContent = welcome;
+
+      if (logo) {
+        document.getElementById('previewLogo').src = logo;
+      }
+    }
+
+    function syncColorFromText(type) {
+      if (type === 'primary') {
+        const val = document.getElementById('cfg-color-primary-text').value;
+        if (/^#[0-9A-F]{6}$/i.test(val)) {
+          document.getElementById('cfg-color-primary').value = val;
+          updateLivePreview();
+        }
+      } else if (type === 'secondary') {
+        const val = document.getElementById('cfg-color-secondary-text').value;
+        if (/^#[0-9A-F]{6}$/i.test(val)) {
+          document.getElementById('cfg-color-secondary').value = val;
+          updateLivePreview();
+        }
+      } else if (type === 'chatbtn') {
+        const val = document.getElementById('cfg-color-chatbtn-text').value;
+        if (/^#[0-9A-F]{6}$/i.test(val)) {
+          document.getElementById('cfg-color-chatbtn').value = val;
+          updateLivePreview();
+        }
+      } else if (type === 'bg') {
+        const val = document.getElementById('cfg-color-bg-text').value;
+        if (/^#[0-9A-F]{6}$/i.test(val)) {
+          document.getElementById('cfg-color-bg').value = val;
+          updateLivePreview();
+        }
+      }
+    }
+
+    async function savePluginConfig() {
+      if (!currentPlatform) return;
+      const payload = {
+        platform_name: document.getElementById('cfg-platform-name').value,
+        theme: {
+          primary: document.getElementById('cfg-color-primary').value,
+          secondary: document.getElementById('cfg-color-secondary').value,
+          chat_button: document.getElementById('cfg-color-chatbtn').value,
+          background: document.getElementById('cfg-color-bg').value,
+          text: '#111827'
+        },
+        branding: {
+          logo_url: document.getElementById('cfg-logo-url').value || 'https://bridgemate.example.com/logo.png'
+        },
+        welcome_message: document.getElementById('cfg-welcome-message').value,
+        position: document.getElementById('cfg-position').value,
+        language: document.getElementById('cfg-language').value,
+        features: {
+          voice: document.getElementById('cfg-feat-voice').checked,
+          human_support: document.getElementById('cfg-feat-human').checked,
+          simple_mode: document.getElementById('cfg-feat-simple').checked,
+          job_assistance: document.getElementById('cfg-feat-jobs').checked,
+          course_assistant: document.getElementById('cfg-feat-course').checked
+        }
+      };
+
+      try {
+        const res = await fetch(`/api/v1/platforms/${currentPlatform.id}/plugin-config`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          alert('Plugin configuration successfully saved! All installed widgets will reflect changes immediately.');
+          await loadPlatforms();
+        } else {
+          alert('Failed to save configuration: ' + (await res.text()));
+        }
+      } catch (e) {
+        alert('Network error saving plugin config: ' + e);
+      }
+    }
+
+    async function togglePlatformStatus(id, newStatus) {
+      try {
+        const res = await fetch(`/api/v1/platforms/${id}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ enabled: newStatus })
+        });
+        if (res.ok) {
+          await loadPlatforms();
+        }
+      } catch (e) {
+        alert('Error updating status: ' + e);
+      }
+    }
+
+    async function rotateKey(id) {
+      if (!confirm('Are you sure you want to rotate the private integration key? Any backend service communicating with BridgeMate must be updated with the new key.')) return;
+      try {
+        const res = await fetch(`/api/v1/platforms/${id}/rotate-keys`, { method: 'POST' });
+        if (res.ok) {
+          const data = await res.json();
+          prompt('SAVE THIS NEW SECRET KEY NOW! It will not be shown again:', data.secret_key);
+        }
+      } catch (e) {
+        alert('Error rotating key: ' + e);
+      }
+    }
+
+    async function handleRegisterPlatform(e) {
+      e.preventDefault();
+      const name = document.getElementById('reg-name').value;
+      const domain = document.getElementById('reg-domain').value;
+      const allowed = document.getElementById('reg-allowed-domains').value
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean);
+
+      try {
+        const res = await fetch('/api/v1/platforms', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name,
+            domain,
+            allowed_domains: allowed
+          })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          closeModal('modalRegisterPlatform');
+          prompt(`Platform successfully registered!\n\nPUBLIC KEY:\n${data.public_key}\n\nSAVE THIS PRIVATE SECRET KEY (Shown once!):\n${data.secret_key}`, data.secret_key);
+          await loadPlatforms();
+        } else {
+          alert('Failed to register: ' + (await res.text()));
+        }
+      } catch (err) {
+        alert('Error: ' + err);
+      }
+    }
+
+    // API: Courses & Documents
+    async function loadCourses() {
+      try {
+        const res = await fetch('/api/v1/courses');
+        if (res.ok) {
+          courses = await res.json();
+          const list = document.getElementById('coursesList');
+          list.innerHTML = '';
+          const select = document.getElementById('upload-course-select');
+          select.innerHTML = '<option value="">Select course...</option>';
+
+          courses.forEach(c => {
+            const item = document.createElement('div');
+            item.className = "py-3 flex items-center justify-between text-xs";
+            item.innerHTML = `
+              <div>
+                <div class="font-bold text-slate-800">${c.course_code}: ${c.title}</div>
+                <div class="text-slate-500 text-[11px]">${c.instructor_name || 'Department Faculty'}</div>
+              </div>
+              <span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[10px] font-semibold">Active</span>
+            `;
+            list.appendChild(item);
+
+            const opt = document.createElement('option');
+            opt.value = c.id;
+            opt.textContent = `${c.course_code} - ${c.title}`;
+            select.appendChild(opt);
+          });
+        }
+      } catch (e) {
+        console.error('Error loading courses', e);
+      }
+    }
+
+    async function loadDocuments() {
+      try {
+        const res = await fetch('/api/v1/knowledge/documents');
+        if (res.ok) {
+          documents = await res.json();
+          const list = document.getElementById('documentsList');
+          list.innerHTML = '';
+          if (documents.length === 0) {
+            list.innerHTML = '<div class="py-4 text-center text-slate-400 text-xs">No documents uploaded yet.</div>';
+            return;
+          }
+          documents.forEach(d => {
+            const item = document.createElement('div');
+            item.className = "py-3 flex items-center justify-between text-xs";
+            item.innerHTML = `
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded bg-slate-100 flex items-center justify-center font-bold text-[10px] uppercase text-slate-600">
+                  ${d.file_type}
+                </div>
+                <div>
+                  <div class="font-semibold text-slate-800">${d.title}</div>
+                  <div class="text-[11px] text-slate-500 font-mono">${(d.file_size / 1024).toFixed(1)} KB • ${d.chunk_count} vector chunks</div>
+                </div>
+              </div>
+              <span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[10px] font-semibold flex items-center gap-1">
+                <i data-lucide="check" class="w-3 h-3"></i> Indexed
+              </span>
+            `;
+            list.appendChild(item);
+          });
+          lucide.createIcons();
+        }
+      } catch (e) {
+        console.error('Error loading documents', e);
+      }
+    }
+
+    async function handleCreateCourse(e) {
+      e.preventDefault();
+      const payload = {
+        course_code: document.getElementById('course-code').value,
+        title: document.getElementById('course-title').value,
+        instructor_name: document.getElementById('course-instructor').value,
+        description: document.getElementById('course-desc').value
+      };
+
+      try {
+        const res = await fetch('/api/v1/courses', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Public-Key': currentPlatform ? currentPlatform.public_key : ''
+          },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          closeModal('modalCreateCourse');
+          await loadCourses();
+        } else {
+          alert('Error creating course: ' + (await res.text()));
+        }
+      } catch (err) {
+        alert('Network error: ' + err);
+      }
+    }
+
+    async function handleUploadDoc(e) {
+      e.preventDefault();
+      const courseId = document.getElementById('upload-course-select').value;
+      const title = document.getElementById('upload-title').value;
+      const fileInput = document.getElementById('upload-file');
+      if (!fileInput.files || fileInput.files.length === 0) return;
+
+      const formData = new FormData();
+      formData.append('course_id', courseId);
+      formData.append('title', title);
+      formData.append('file', fileInput.files[0]);
+
+      document.getElementById('btnUploadSubmit').textContent = 'Processing & Chunking...';
+      try {
+        const res = await fetch('/api/v1/knowledge/documents', {
+          method: 'POST',
+          body: formData
+        });
+        if (res.ok) {
+          closeModal('modalUploadDoc');
+          await loadDocuments();
+          alert('Learning material successfully parsed, chunked, and indexed with vector embeddings!');
+        } else {
+          alert('Failed to upload document: ' + (await res.text()));
+        }
+      } catch (err) {
+        alert('Network error: ' + err);
+      } finally {
+        document.getElementById('btnUploadSubmit').textContent = 'Upload & Process';
+      }
+    }
+
+    async function testRAGSearch() {
+      const q = document.getElementById('ragTestQuery').value;
+      if (!q) return;
+
+      const resDiv = document.getElementById('ragResults');
+      resDiv.innerHTML = '<div class="text-xs text-slate-500 italic">Performing similarity vector search...</div>';
+
+      try {
+        const res = await fetch('/api/v1/knowledge/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: q, top_k: 3 })
+        });
+        if (res.ok) {
+          const chunks = await res.json();
+          resDiv.innerHTML = '';
+          if (chunks.length === 0) {
+            resDiv.innerHTML = '<div class="text-xs text-slate-500">No matching chunks found.</div>';
+            return;
+          }
+          chunks.forEach(c => {
+            const item = document.createElement('div');
+            item.className = "p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs space-y-1";
+            item.innerHTML = `
+              <div class="flex justify-between font-semibold text-slate-800">
+                <span>${c.document_title} ${c.page_number ? `(Page ${c.page_number})` : ''}</span>
+                <span class="text-emerald-700 bg-emerald-100 px-1.5 py-0.2 rounded text-[10px]">Score: ${c.score}</span>
+              </div>
+              <p class="text-slate-600 leading-relaxed">${c.content}</p>
+            `;
+            resDiv.appendChild(item);
+          });
+        }
+      } catch (e) {
+        resDiv.innerHTML = `<div class="text-xs text-red-600">Search error: ${e}</div>`;
+      }
+    }
+
+    // API: FAQs
+    async function loadFaqs() {
+      try {
+        const res = await fetch('/api/v1/knowledge/faqs');
+        if (res.ok) {
+          const faqs = await res.json();
+          const list = document.getElementById('faqsList');
+          list.innerHTML = '';
+          faqs.forEach(f => {
+            const item = document.createElement('div');
+            item.className = "py-3 text-xs space-y-1";
+            item.innerHTML = `
+              <div class="flex justify-between items-start">
+                <span class="font-bold text-slate-800">${f.question}</span>
+                <span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[10px] font-mono">${f.category}</span>
+              </div>
+              <p class="text-slate-600">${f.answer}</p>
+            `;
+            list.appendChild(item);
+          });
+        }
+      } catch (e) {
+        console.error('Error loading FAQs', e);
+      }
+    }
+
+    async function handleCreateFaq(e) {
+      e.preventDefault();
+      const payload = {
+        category: document.getElementById('faq-category').value,
+        question: document.getElementById('faq-question').value,
+        answer: document.getElementById('faq-answer').value,
+        keywords: document.getElementById('faq-keywords').value.split(',').map(s => s.trim()).filter(Boolean),
+        is_approved: true
+      };
+
+      try {
+        const res = await fetch('/api/v1/knowledge/faqs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          closeModal('modalCreateFaq');
+          await loadFaqs();
+        }
+      } catch (err) {
+        alert('Error: ' + err);
+      }
+    }
+
+    // API: Jobs
+    async function loadJobs() {
+      try {
+        const res = await fetch('/api/v1/jobs');
+        if (res.ok) {
+          const jobs = await res.json();
+          const list = document.getElementById('jobsList');
+          list.innerHTML = '';
+          jobs.forEach(j => {
+            const item = document.createElement('div');
+            item.className = "bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3";
+            item.innerHTML = `
+              <div class="flex justify-between items-start">
+                <div>
+                  <h4 class="font-bold text-slate-900">${j.title}</h4>
+                  <div class="text-xs text-slate-500">${j.company} • ${j.location || 'Remote'}</div>
+                </div>
+                <span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[10px] font-semibold">${j.employment_type || 'Full-time'}</span>
+              </div>
+              <p class="text-xs text-slate-600 line-clamp-2">${j.description}</p>
+              <div class="flex flex-wrap gap-1">
+                ${(j.required_skills || []).map(s => `<span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[10px]">${s}</span>`).join('')}
+              </div>
+            `;
+            list.appendChild(item);
+          });
+        }
+      } catch (e) {
+        console.error('Error loading jobs', e);
+      }
+    }
+
+    // API: Learners
+    async function loadLearners() {
+      try {
+        const res = await fetch('/api/v1/auth/learners');
+        if (res.ok) {
+          const learners = await res.json();
+          const tbody = document.getElementById('learnersTableBody');
+          tbody.innerHTML = '';
+          learners.forEach(l => {
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-slate-50";
+            tr.innerHTML = `
+              <td class="py-3 px-4 font-semibold text-slate-800">${l.full_name}</td>
+              <td class="py-3 px-4 text-slate-500 font-mono">${l.email || '—'}</td>
+              <td class="py-3 px-4">
+                ${l.phone_number ? `<span class="font-mono text-slate-700">${l.phone_number}</span> ${l.phone_verified ? '<span class="text-emerald-600 font-bold ml-1">✓ Verified</span>' : ''}` : '<span class="text-slate-400">Not set</span>'}
+              </td>
+              <td class="py-3 px-4">
+                ${l.telegram_linked ? `<span class="bg-sky-100 text-sky-800 px-2 py-0.5 rounded font-mono">Linked (@${l.telegram_username || 'user'})</span>` : '<span class="text-slate-400">Unlinked</span>'}
+              </td>
+              <td class="py-3 px-4">
+                <span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-semibold text-[10px]">Active</span>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+      } catch (e) {
+        console.error('Error loading learners', e);
+      }
+    }
+
+    // API: Support Tickets
+    async function loadTickets() {
+      try {
+        const res = await fetch('/api/v1/support/tickets');
+        if (res.ok) {
+          const tickets = await res.json();
+          const cont = document.getElementById('ticketsContainer');
+          cont.innerHTML = '';
+          if (tickets.length === 0) {
+            cont.innerHTML = '<div class="py-6 text-center text-slate-400 text-xs">No active support requests.</div>';
+            return;
+          }
+          tickets.forEach(t => {
+            const item = document.createElement('div');
+            item.className = "bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3";
+            item.innerHTML = `
+              <div class="flex justify-between items-start">
+                <div>
+                  <h4 class="font-bold text-slate-900">${t.subject}</h4>
+                  <div class="text-xs text-slate-500">Ticket ID: ${t.id} • ${new Date(t.created_at).toLocaleString()}</div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold ${t.status === 'open' ? 'bg-amber-100 text-amber-800' : t.status === 'in_progress' ? 'bg-sky-100 text-sky-800' : 'bg-emerald-100 text-emerald-800'}">
+                    ${t.status.toUpperCase()}
+                  </span>
+                  <select onchange="updateTicketStatus('${t.id}', this.value)" class="text-xs bg-slate-100 border border-slate-200 rounded px-2 py-1">
+                    <option value="open" ${t.status === 'open' ? 'selected' : ''}>Open</option>
+                    <option value="in_progress" ${t.status === 'in_progress' ? 'selected' : ''}>In Progress</option>
+                    <option value="resolved" ${t.status === 'resolved' ? 'selected' : ''}>Resolved</option>
+                    <option value="closed" ${t.status === 'closed' ? 'selected' : ''}>Closed</option>
+                  </select>
+                </div>
+              </div>
+              <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 text-xs text-slate-700">
+                ${t.messages && t.messages.length > 0 ? t.messages[0].content : 'No initial message attached.'}
+              </div>
+            `;
+            cont.appendChild(item);
+          });
+        }
+      } catch (e) {
+        console.error('Error loading tickets', e);
+      }
+    }
+
+    async function updateTicketStatus(id, newStatus) {
+      try {
+        const res = await fetch(`/api/v1/support/tickets/${id}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus })
+        });
+        if (res.ok) {
+          await loadTickets();
+        }
+      } catch (e) {
+        alert('Error updating ticket: ' + e);
+      }
+    }
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text);
+      alert('Copied to clipboard: ' + text);
+    }
+
+    function copySnippet() {
+      const code = document.getElementById('embedSnippetCode').textContent;
+      copyToClipboard(code);
+    }
+  </script>
+</body>
+</html>
